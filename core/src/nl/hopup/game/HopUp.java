@@ -33,6 +33,7 @@ public class HopUp extends Game {
         font32 = new BitmapFont(Gdx.files.internal("font/font64.fnt"));
         font32.getData().setScale(1f, 1f);
         font32.setColor(Color.BLACK);
+        font32.getData().markupEnabled = true;
 
 		this.setScreen(new WarningScreen(this));
 
@@ -49,6 +50,10 @@ public class HopUp extends Game {
 		batch.dispose();
         font128.dispose();
 	}
+
+	public void restart() {
+        this.setScreen(new GameScreen(this));
+    }
 
 	public long elapsed() {
         return System.currentTimeMillis() - startTime;

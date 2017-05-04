@@ -73,7 +73,6 @@ public class Player {
                 updateDeathStatus();
                 break;
             case DEAD_WAIT:
-                System.out.println(System.currentTimeMillis() - timeOfDeath);
                 if (System.currentTimeMillis() - timeOfDeath >= DEATH_WAIT_TIME) {
                     state = PlayerState.DEAD_FALL;
                     landSpeed = 0;
@@ -104,7 +103,7 @@ public class Player {
 
         radius = BASE_RADIUS - ((buildup - MIN_JUMP_BUILDUP) / (MAX_JUMP_BUILDUP + MIN_JUMP_BUILDUP) * BASE_RADIUS);
 
-        if (distance <= collisionDistance && !dead) {
+        if (distance <= collisionDistance && state != PlayerState.DEAD_FALL) {
             distance = collisionDistance;
         }
 
@@ -154,5 +153,9 @@ public class Player {
 
     public float getRunningTime() {
         return runningTime;
+    }
+
+    public boolean isDead() {
+        return dead;
     }
 }
