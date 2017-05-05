@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.random;
 
 /**
  * Created by pieter on 28-4-17.
@@ -42,10 +43,12 @@ public class GameScreen implements Screen {
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
     private ShapeRenderer playerRenderer = new ShapeRenderer();
     private SpriteBatch textRenderer = new SpriteBatch();
+    private SpriteBatch worldBatch = new SpriteBatch();
 
     private GameState gamestate = GameState.RUNNING;
     private Player player;
     private ArrayList<Obstacle> obstacles = new ArrayList<Obstacle>();
+    private ArrayList<Obstacle> fakeObstacles = new ArrayList<Obstacle>();
     private float previousAngle = 0;
     private float zoom = 0.005f;
 
@@ -139,17 +142,12 @@ public class GameScreen implements Screen {
         // World
         shapeRenderer.circle(0, 0, WORLDHEIGHT, 1024);
 
-
         // Obstacles
         for (Obstacle obstacle : obstacles) {
             obstacle.draw(shapeRenderer);
         }
 
         shapeRenderer.end();
-
-        playerRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        player.draw(playerRenderer);
-        playerRenderer.end();
 
         textRenderer.begin();
         textRenderer.end();
@@ -170,6 +168,18 @@ public class GameScreen implements Screen {
                 game.font32.draw(game.batch, tapToContinue, textCam.viewportWidth / 2 - tapToContinue.width / 2, 400);
         }
         game.batch.end();
+
+        worldBatch.setProjectionMatrix(camera.combined);
+        worldBatch.begin();
+
+        worldBatch.setColor(new Color(17/255f, 17/255f, 17/255f, 1));
+        //worldBatch.draw(game.textures.get("maze.png"), -WORLDHEIGHT, -WORLDHEIGHT, 2f*WORLDHEIGHT, 2f*WORLDHEIGHT);
+
+        worldBatch.end();
+
+        playerRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        player.draw(playerRenderer);
+        playerRenderer.end();
 
         frame++;
     }
@@ -211,6 +221,7 @@ public class GameScreen implements Screen {
         }
 
         for (int i = -2; i <= 2; i++) {
+
             int index = (closest + i) % obstacles.size();
             if (index < 0) {
                 index = obstacles.size() + index;

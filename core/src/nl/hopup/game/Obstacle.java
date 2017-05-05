@@ -17,6 +17,8 @@ import sun.management.Util;
 public class Obstacle {
     private static final double DISTANCE_CHANGE = 0.01;
 
+    private boolean aestetic = false;
+
     private float angle;
     private double distance;
     private double rotation;
@@ -29,6 +31,13 @@ public class Obstacle {
         this.height = Utils.randint(50, 90) / 100f;
         this.width = Utils.randint(50, 90) / 100f;
         this.distance = GameScreen.WORLDHEIGHT + height / 2 - 0.3;
+    }
+
+    public Obstacle(double angle, double distance, boolean aestetic) {
+        this(angle);
+        this.distance = distance;
+        this.aestetic = aestetic;
+        this.rotation = Utils.randint(0, 360);
     }
 
     public float x() {
@@ -95,4 +104,9 @@ public class Obstacle {
     public double getRotation() {
         return rotation;
     }
+
+    public boolean isAestetic() {
+        return aestetic;
+    }
+
 }

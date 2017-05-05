@@ -11,6 +11,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import sun.rmi.runtime.Log;
 
@@ -20,11 +23,15 @@ public class HopUp extends Game {
     public BitmapFont font32;
     public int width  = 1280;
     public int height = 720;
+    public ArrayList<String> textureFiles = new ArrayList<String>();
+    public Map<String, Texture> textures = new HashMap<String, Texture>();
 
     private long startTime = 0;
 	
 	@Override
 	public void create () {
+        startTime = System.currentTimeMillis();
+
 		batch = new SpriteBatch();
 
         font128 = new BitmapFont(Gdx.files.internal("font/font64.fnt"));
@@ -37,7 +44,9 @@ public class HopUp extends Game {
 
 		this.setScreen(new WarningScreen(this));
 
-        startTime = System.currentTimeMillis();
+        textureFiles.add("maze.png");
+
+        loadTextures();
 	}
 
 	@Override
@@ -53,6 +62,12 @@ public class HopUp extends Game {
 
 	public void restart() {
         this.setScreen(new GameScreen(this));
+    }
+
+    public void loadTextures() {
+        for (String file : textureFiles) {
+            textures.put(file, new Texture(Gdx.files.internal(file)));
+        }
     }
 
 	public long elapsed() {
