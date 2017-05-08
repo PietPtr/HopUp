@@ -1,5 +1,7 @@
 package nl.hopup.game;
 
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
@@ -16,6 +18,10 @@ import sun.management.Util;
 
 public class Obstacle {
     private static final double DISTANCE_CHANGE = 0.01;
+    private static final double FIRST_PULSE_SPEED = 3;
+    private static final float FIRST_PULSE_SIZE = 0.1f;
+    private static final float SPEED_ACC = 0.04f;
+    private static final float SIZE_ACC = 0.01f;
 
     private boolean aestetic = false;
 
@@ -24,17 +30,26 @@ public class Obstacle {
     private double rotation;
     private float height;
     private float width;
+    private float baseHeight;
+    private float baseWidth;
 
-    public Obstacle(double angle) {
+    private GameScreen gameScreen;
+    private double pulseSpeed = FIRST_PULSE_SPEED;
+    private double pulseSize = FIRST_PULSE_SIZE;
+
+    public Obstacle(double angle, GameScreen gameScreen) {
         this.angle = (float)angle;
-        this.rotation = this.angle;
+        this.rotation = Utils.randint(0, 360);
         this.height = Utils.randint(50, 90) / 100f;
         this.width = Utils.randint(50, 90) / 100f;
         this.distance = GameScreen.WORLDHEIGHT + height / 2 - 0.3;
+        this.baseHeight = height;
+        this.baseWidth = width;
+        this.gameScreen = gameScreen;
     }
 
-    public Obstacle(double angle, double distance, boolean aestetic) {
-        this(angle);
+    public Obstacle(double angle, double distance, boolean aestetic, GameScreen gameScreen) {
+        this(angle, gameScreen);
         this.distance = distance;
         this.aestetic = aestetic;
         this.rotation = Utils.randint(0, 360);
@@ -49,7 +64,19 @@ public class Obstacle {
     }
 
     public void update() {
+        pulseSpeed += Gdx.graphics.getDeltaTime() * SPEED_ACC;
 
+        if (pulseSize >= 0.5) {
+            pulseSize = 0.5;
+        } else {
+            pulseSize += Gdx.graphics.getDeltaTime() * SIZE_ACC;
+        }
+
+        if (gameScreen.isEventHappening("PULSATING OBSTACLES")) {
+            double time = (int)(gameScreen.game.elapsed() % 300003) * pulseSpeed;
+            width = baseWidth + (float)(Math.sin(time / 1000.0) * pulseSize);
+            height = baseHeight + (float)(Math.cos(time / 1000.0) * pulseSize);
+        }
     }
 
     public void draw(ShapeRenderer renderer) {

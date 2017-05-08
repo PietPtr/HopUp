@@ -36,6 +36,7 @@ public class HopUp extends Game {
 
         font128 = new BitmapFont(Gdx.files.internal("font/font64.fnt"));
         font128.getData().setScale(2,2);
+        font128.getData().markupEnabled = true;
 
         font32 = new BitmapFont(Gdx.files.internal("font/font64.fnt"));
         font32.getData().setScale(1f, 1f);

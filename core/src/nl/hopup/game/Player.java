@@ -39,9 +39,11 @@ public class Player {
     private long timeOfDeath = 0;
     private boolean dead = false;
     private float runningTime = 0;
+    private GameScreen gameScreen;
 
-    public Player() {
-        state = PlayerState.RUNNING;
+    public Player(GameScreen gameScreen) {
+        this.state = PlayerState.RUNNING;
+        this.gameScreen = gameScreen;
     }
 
     public void update() {
@@ -125,6 +127,9 @@ public class Player {
                 renderer.setColor(Color.RED);
             else
                 renderer.setColor(Color.BLACK);
+            if (gameScreen.isEventHappening("RAINBOW PLAYER")) {
+                renderer.setColor(gameScreen.rainbows.get(2));
+            }
             renderer.circle(x(), y(), getRadius(), 128);
         }
 
