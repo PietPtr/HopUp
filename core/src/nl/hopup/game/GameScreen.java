@@ -37,7 +37,7 @@ public class GameScreen implements Screen {
     final public static float DEGREES_PER_OBSTACLE = 18;
     final public static float CAMERA_OFFSET = -3;
     final public static float HEIGHT_OFFSET = 1;
-    final public static int NEW_EVENT_TIME = 2000;
+    final public static int NEW_EVENT_TIME = 6000;
     final public static double RESTART_DISTANCE = WORLDHEIGHT - 4;
     final public static float ROTATE_ACC = 1.5f;
     final public static float BASE_ZOOM = 0.005f;
@@ -211,9 +211,9 @@ public class GameScreen implements Screen {
         }
 
         if (isEventHappening("VIEW ZOOM")) {
-            camera.zoom = BASE_ZOOM + (float)Math.sin(zoomSpeed + game.elapsed() / 1000.0f * zoomSpeed) / 800f;
+            camera.zoom = BASE_ZOOM + (float)Math.sin((System.currentTimeMillis() - gameStartTime) / 1000.0f * zoomSpeed) / 800f;
             zoomSpeed += Gdx.graphics.getDeltaTime() * ZOOM_ACC;
-            System.out.println(zoomSpeed);
+            //System.out.println(zoomSpeed);
         }
 
         /////////////
@@ -342,7 +342,7 @@ public class GameScreen implements Screen {
     }
 
     public void addEvent(String name) {
-        eventTimes.put(name, eventTimes.size() * NEW_EVENT_TIME);
+        eventTimes.put(name, (eventTimes.size() + 1) * NEW_EVENT_TIME);
     }
 
     public boolean isEventHappening(String name) {
