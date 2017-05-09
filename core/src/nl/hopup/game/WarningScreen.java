@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.*;
 
 public class WarningScreen implements Screen {
 
-    final public int WARNING_SHOW_TIME = 455;
+    final public int WARNING_SHOW_TIME = HopUp.DEBUG ? 1 : 2222;
 
     final HopUp game;
 

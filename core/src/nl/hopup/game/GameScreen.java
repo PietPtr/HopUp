@@ -35,13 +35,15 @@ public class GameScreen implements Screen {
     final public static int WORLDHEIGHT = 20;
     final public static int OBSTACLE_POS_DEVIATION = 1;
     final public static float DEGREES_PER_OBSTACLE = 18;
+    final public static float DEGREES_PER_ROCK = 9;
     final public static float CAMERA_OFFSET = -3;
-    final public static float HEIGHT_OFFSET = 1;
-    final public static int NEW_EVENT_TIME = 6000;
+    final public static float HEIGHT_OFFSET = 0.5f;
+    final public static int NEW_EVENT_TIME = HopUp.DEBUG ? 1000 : 9778;
     final public static double RESTART_DISTANCE = WORLDHEIGHT - 4;
     final public static float ROTATE_ACC = 1.5f;
     final public static float BASE_ZOOM = 0.005f;
     final public static float ZOOM_ACC = 0.025f;
+    final public static int MAX_DOTS = 256; // lower for better performance
 
     public HashMap<String, Integer> eventTimes = new HashMap<String, Integer>();
 
@@ -54,13 +56,17 @@ public class GameScreen implements Screen {
 
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
     private ShapeRenderer playerRenderer = new ShapeRenderer();
+    private ShapeRenderer worldRenderer = new ShapeRenderer();
+    private ShapeRenderer rockRenderer = new ShapeRenderer();
     private SpriteBatch textRenderer = new SpriteBatch();
-    private SpriteBatch worldBatch = new SpriteBatch();
 
     private GameState gamestate = GameState.RUNNING;
     private Player player;
+
     private ArrayList<Obstacle> obstacles = new ArrayList<Obstacle>();
     private ArrayList<Dot> dots = new ArrayList<Dot>();
+    private ArrayList<Rock> rocks = new ArrayList<Rock>();
+
     private float previousAngle = 0;
     private float zoom = BASE_ZOOM;
 
@@ -82,15 +88,16 @@ public class GameScreen implements Screen {
 
     public GameScreen(final HopUp game) {
 
-        addEvent("FALLING DOTS");           //
-        addEvent("PULSATING OBSTACLES");    //
-        addEvent("VIEW ZOOM");
-        addEvent("VIEW ROTATE");
-        addEvent("RAINBOW DOTS");           //
-        addEvent("RAINBOW ROCKS");
-        addEvent("RAINBOW WORLD");          //
-        addEvent("RAINBOW BG");             //
-        addEvent("RAINBOW PLAYER");         //
+        addEvent("FALLING DOTS");           // 1
+        addEvent("PULSATING OBSTACLES");    // 2
+        addEvent("VIEW ZOOM");              // 3
+        addEvent("VIEW ROTATE");            // 4
+        addEvent("RAINBOW ROCKS");          // 5
+        addEvent("RAINBOW BG");             // 6
+        addEvent("RAINBOW DOTS");           // 7
+        addEvent("RAINBOW OBSTACLES");      // 8
+        addEvent("RAINBOW WORLD");          // 9
+        addEvent("RAINBOW PLAYER");         // 10
 
         this.game = game;
 
@@ -118,6 +125,8 @@ public class GameScreen implements Screen {
 
         shapeRenderer.setColor(Color.BLACK);
         playerRenderer.setColor(Color.BLACK);
+        worldRenderer.setColor(Color.BLACK);
+        rockRenderer.setColor(new Color(0.1f, 0.1f, 0.1f, 1));
 
         player = new Player(this);
 
@@ -129,11 +138,11 @@ public class GameScreen implements Screen {
             obstacles.add(new Obstacle(i + deviation, this));
         }
 
-        gameOverLayout.setText(bigFont, "GAME OVER");
+        for (int i = 0; i < 360; i += DEGREES_PER_ROCK) {
+            rocks.add(new Rock(i));
+        }
 
-        rainbowPhases.add(0000f);
-        rainbowPhases.add(1000f);
-        rainbowPhases.add(2000f);
+        gameOverLayout.setText(bigFont, "GAME OVER");
 
         gameStartTime = System.currentTimeMillis();
 
@@ -155,6 +164,8 @@ public class GameScreen implements Screen {
         // Logic updates
         player.update();
 
+        calculateRainbows();
+
         Vector2 camPos = Utils.polarToPos(WORLDHEIGHT + HEIGHT_OFFSET, player.getAngle() + CAMERA_OFFSET);
         camera.position.set(camPos.x, camPos.y, 0);
         camera.rotate(previousAngle - (player.getAngle() + CAMERA_OFFSET));
@@ -163,7 +174,7 @@ public class GameScreen implements Screen {
         previousAngle = player.getAngle() + CAMERA_OFFSET;
 
         boolean dead = testDead();
-        if (dead) {
+        if (dead && HopUp.CHECK_DEATH) {
             player.kill();
         }
 
@@ -176,8 +187,6 @@ public class GameScreen implements Screen {
         if (gamestate == GameState.GAMEOVER && player.getDistance() <= RESTART_DISTANCE && Gdx.input.isTouched()) {
             resetGame();
         }
-
-        calculateRainbows();
 
         if (isEventHappening("RAINBOW BG")) {
             smallFont.setColor(rainbows.get(2));
@@ -199,11 +208,11 @@ public class GameScreen implements Screen {
             d.update();
         }
 
-        for (int i = dots.size() - 1; i >= 0; i--) {
-            if (dots.get(i).shouldBeRemoved()) {
-                dots.remove(i);
-            }
+        while (dots.size() > MAX_DOTS) {
+            System.out.println("removing dot");
+            dots.remove(0);
         }
+        System.out.println(dots.size());
 
         if (isEventHappening("VIEW ROTATE")) {
             camera.rotate(rotateSpeed * Gdx.graphics.getDeltaTime());
@@ -215,6 +224,7 @@ public class GameScreen implements Screen {
             zoomSpeed += Gdx.graphics.getDeltaTime() * ZOOM_ACC;
             //System.out.println(zoomSpeed);
         }
+
 
         /////////////
         // Drawing //
@@ -228,19 +238,15 @@ public class GameScreen implements Screen {
 
         game.batch.setProjectionMatrix(camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
-
-        if (isEventHappening("RAINBOW WORLD")) {
-            shapeRenderer.setColor(rainbows.get(1));
-        }
+        worldRenderer.setProjectionMatrix(camera.combined);
+        rockRenderer.setProjectionMatrix(camera.combined);
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        // World
-        shapeRenderer.circle(0, 0, WORLDHEIGHT, 1024);
-
-        // Obstacles
-        for (Obstacle obstacle : obstacles) {
-            obstacle.draw(shapeRenderer);
+        if (isEventHappening("RAINBOW DOTS")) {
+            shapeRenderer.setColor(rainbows.get(1));
+        } else {
+            shapeRenderer.setColor(Color.BLACK);
         }
 
         // Dots
@@ -248,10 +254,39 @@ public class GameScreen implements Screen {
             d.draw(shapeRenderer);
         }
 
+        if (isEventHappening("RAINBOW OBSTACLES")) {
+            shapeRenderer.setColor(rainbows.get(1));
+        } else {
+            shapeRenderer.setColor(Color.BLACK);
+        }
+
+        // Obstacles
+        for (Obstacle obstacle : obstacles) {
+            obstacle.draw(shapeRenderer);
+        }
+
         shapeRenderer.end();
 
-        textRenderer.begin();
-        textRenderer.end();
+        // World
+        worldRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        worldRenderer.circle(0, 0, WORLDHEIGHT, 1024);
+
+        if (isEventHappening("RAINBOW WORLD")) {
+            worldRenderer.setColor(rainbows.get(1));
+        }
+
+        worldRenderer.end();
+
+        // Rocks
+        if (isEventHappening("RAINBOW ROCKS")) {
+            rockRenderer.setColor(rainbows.get(3));
+        }
+
+        rockRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (Rock r : rocks) {
+            r.draw(rockRenderer);
+        }
+        rockRenderer.end();
 
         game.batch.setProjectionMatrix(textCam.combined);
         game.batch.begin();
@@ -264,7 +299,7 @@ public class GameScreen implements Screen {
             } else {
                 tapToContinue.setText(smallFont, "[BLACK]TAP TO PLAY AGAIN");
             }
-            if (isEventHappening("RAINBOW WORLD")) {
+            if (isEventHappening("RAINBOW BG")) {
                 tapToContinue.setText(smallFont, "TAP TO PLAY AGAIN");
                 gameOverLayout.setText(bigFont, "GAME OVER");
             }
@@ -275,7 +310,6 @@ public class GameScreen implements Screen {
                 smallFont.draw(game.batch, tapToContinue, textCam.viewportWidth / 2 - tapToContinue.width / 2, 400);
         }
         game.batch.end();
-
 
         playerRenderer.setProjectionMatrix(camera.combined);
         playerRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -353,13 +387,18 @@ public class GameScreen implements Screen {
 
     private void calculateRainbows() {
         rainbows = new ArrayList<Color>();
-        for (int i = 0; i < rainbowPhases.size(); i++) {
-            double time = (System.currentTimeMillis() % 300003) / 1000.0 + rainbowPhases.get(i);
-            time *= 5;
-            double r = (Math.sin(time) + 1) / 2f;
-            double g = (Math.sin(time + 2) + 1) / 2f;
-            double b = (Math.sin(time + 4) + 1) / 2f;
-            rainbows.add(new Color((float)r, (float)g, (float)b, 1));
-        }
+
+        double time = (System.currentTimeMillis() % 300003) / 1000.0 ;
+        time *= 5;
+        double r = (Math.sin(time) + 1) / 2f;
+        double g = (Math.sin(time + 2) + 1) / 2f;
+        double b = (Math.sin(time + 4) + 1) / 2f;
+
+        rainbows.add(new Color((float)r, (float)g, (float)b, 1));
+        rainbows.add(new Color((float)g, (float)b, (float)r, 1));
+        rainbows.add(new Color((float)b, (float)r, (float)g, 1));
+        rainbows.add(new Color((float)r, (float)b, (float)g, 1));
+
+
     }
 }

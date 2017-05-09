@@ -23,8 +23,6 @@ public class Obstacle {
     private static final float SPEED_ACC = 0.04f;
     private static final float SIZE_ACC = 0.01f;
 
-    private boolean aestetic = false;
-
     private float angle;
     private double distance;
     private double rotation;
@@ -46,13 +44,6 @@ public class Obstacle {
         this.baseHeight = height;
         this.baseWidth = width;
         this.gameScreen = gameScreen;
-    }
-
-    public Obstacle(double angle, double distance, boolean aestetic, GameScreen gameScreen) {
-        this(angle, gameScreen);
-        this.distance = distance;
-        this.aestetic = aestetic;
-        this.rotation = Utils.randint(0, 360);
     }
 
     public float x() {
@@ -130,10 +121,6 @@ public class Obstacle {
 
     public double getRotation() {
         return rotation;
-    }
-
-    public boolean isAestetic() {
-        return aestetic;
     }
 
 }

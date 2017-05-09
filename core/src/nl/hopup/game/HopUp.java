@@ -18,6 +18,9 @@ import java.util.Map;
 import sun.rmi.runtime.Log;
 
 public class HopUp extends Game {
+    public static final boolean CHECK_DEATH  = true;
+    public static final boolean DEBUG        = false;
+
 	public SpriteBatch batch;
     public BitmapFont font128;
     public BitmapFont font32;
