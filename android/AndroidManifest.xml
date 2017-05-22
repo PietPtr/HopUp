@@ -13,7 +13,7 @@
         android:theme="@style/GdxTheme" >
         <activity
             android:name="nl.hopup.game.AndroidLauncher"
-            android:label="Super Flash Jump Adventure"
+            android:label="Hop Up"
             android:screenOrientation="landscape"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
             <intent-filter>

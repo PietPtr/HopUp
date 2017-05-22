@@ -1,6 +1,7 @@
 package nl.hopup.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -43,20 +44,22 @@ public class MenuScreen implements Screen {
         //stage = new Stage();
 
         Gdx.input.setInputProcessor(stage);
+        Gdx.input.setCatchBackKey(false);
 
         Label.LabelStyle titleLabelStyle = new Label.LabelStyle(game.font128, Color.WHITE);
-        titleText = new Label("Hop Up", titleLabelStyle);
-        titleText.setPosition(game.width / 2 - titleText.getWidth() / 2, 550);
-//        titleText.setWrap(true);
-//        titleText.setHeight(1200);
-//        titleText.setAlignment(Align.center);
+        titleText = new Label("HOP UP", titleLabelStyle);
+        titleText.setPosition(game.width / 2 - titleText.getWidth() / 2, 600);
 
         buttonStyle = new TextButton.TextButtonStyle();
-        buttonStyle.font = game.font32;
+        buttonStyle.font = game.font128;
+        buttonStyle.downFontColor = Color.GRAY;
+        buttonStyle.fontColor = Color.WHITE;
 
         startButton = new TextButton("START", buttonStyle);
-        startButton.setPosition(game.width / 2 - startButton.getWidth() / 2, 400);
+        startButton.setPosition(game.width / 2 - startButton.getWidth() / 2, 350);
 
+        highScoreButton = new TextButton("HIGH SCORES", buttonStyle);
+        highScoreButton.setPosition(game.width / 2 - highScoreButton.getWidth() / 2, 200);
 
         startButton.addListener(new ClickListener() {
             @Override
@@ -65,8 +68,16 @@ public class MenuScreen implements Screen {
             }
         });
 
+        highScoreButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new HighScoreScreen(game));
+            }
+        });
+
         stage.addActor(titleText);
         stage.addActor(startButton);
+        stage.addActor(highScoreButton);
     }
 
     @Override
@@ -100,11 +111,11 @@ public class MenuScreen implements Screen {
 
     @Override
     public void hide() {
-
+        startButton.clearListeners();
+        highScoreButton.clearListeners();
     }
 
     @Override
     public void dispose() {
-
     }
 }

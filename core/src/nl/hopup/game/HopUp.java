@@ -3,6 +3,7 @@ package nl.hopup.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -31,6 +32,8 @@ public class HopUp extends Game {
     public ArrayList<String> textureFiles = new ArrayList<String>();
     public Map<String, Texture> textures = new HashMap<String, Texture>();
 
+    Preferences highscores;
+
     private long startTime = 0;
 	
 	@Override
@@ -51,6 +54,8 @@ public class HopUp extends Game {
 		this.setScreen(new WarningScreen(this));
 
         //textureFiles.add("maze.png");
+
+        highscores = Gdx.app.getPreferences("highscores");
 
         loadTextures();
 	}
@@ -78,5 +83,22 @@ public class HopUp extends Game {
 
 	public long elapsed() {
         return System.currentTimeMillis() - startTime;
+    }
+
+    public void addScore(float score) {
+        ArrayList<Float> scores = new ArrayList<Float>();
+        for (int i = 0; i < 10; i++) {
+            scores.add(highscores.getFloat(Integer.toString(i)));
+        }
+        scores.add(score);
+
+        highscores.clear();
+
+        java.util.Collections.sort(scores);
+
+        for (int i = 1; i < 11; i++) {
+            highscores.putFloat(Integer.toString(i-1), scores.get(i));
+        }
+        highscores.flush();
     }
 }

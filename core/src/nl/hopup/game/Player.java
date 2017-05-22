@@ -26,6 +26,7 @@ public class Player {
     final double DEATH_WAIT_TIME = 100;
     final double GRAVITY = 14.81;
     final double BASE_RADIUS = 0.15;
+    final double MAX_SPEED = 18;
 
     private PlayerState state;
     private double radius = BASE_RADIUS;
@@ -100,6 +101,10 @@ public class Player {
         //angle = 37;
         landSpeed += ACCELERATION * Gdx.graphics.getDeltaTime();
 
+        if (landSpeed > MAX_SPEED) {
+            landSpeed = MAX_SPEED;
+        }
+
         distance += Gdx.graphics.getDeltaTime() * verticalSpeed;
         verticalSpeed -= Gdx.graphics.getDeltaTime() * GRAVITY;
 
@@ -162,5 +167,9 @@ public class Player {
 
     public boolean isDead() {
         return dead;
+    }
+
+    public double getLandSpeed() {
+        return landSpeed;
     }
 }

@@ -1,6 +1,7 @@
 package nl.hopup.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cursor;
@@ -109,6 +110,7 @@ public class GameScreen implements Screen {
         smallFont.setColor(Color.BLACK);
         smallFont.getData().markupEnabled = true;
 
+        Gdx.input.setCatchBackKey(true);
 
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
@@ -181,6 +183,7 @@ public class GameScreen implements Screen {
         if (player.isDead() && gameOverTime == 0) {
             gamestate = GameState.GAMEOVER;
             gameOverTime = System.currentTimeMillis();
+            game.addScore((float)((System.currentTimeMillis() - gameStartTime) / 1000.0));
         }
 
         if (gamestate == GameState.GAMEOVER && player.getDistance() <= RESTART_DISTANCE && Gdx.input.isTouched()) {
@@ -212,7 +215,6 @@ public class GameScreen implements Screen {
             System.out.println("removing dot");
             dots.remove(0);
         }
-        System.out.println(dots.size());
 
         if (isEventHappening("VIEW ROTATE")) {
             camera.rotate(rotateSpeed * Gdx.graphics.getDeltaTime());
@@ -225,6 +227,10 @@ public class GameScreen implements Screen {
             //System.out.println(zoomSpeed);
         }
 
+        if (Gdx.input.isKeyPressed(Input.Keys.BACK) ||
+            Gdx.input.isKeyPressed(Input.Keys.BACKSPACE)) {
+            game.setScreen(new MenuScreen(game));
+        }
 
         /////////////
         // Drawing //
@@ -291,23 +297,24 @@ public class GameScreen implements Screen {
         game.batch.setProjectionMatrix(textCam.combined);
         game.batch.begin();
         smallFont.draw(game.batch, String.valueOf(player.getRunningTime()), 7, textCam.viewportHeight - 10);
+        //smallFont.draw(game.batch, String.valueOf(player.getLandSpeed()), 7, textCam.viewportHeight - 10);
 
         if (gamestate == GameState.GAMEOVER) {
-
+            String playAgainStr = "         TAP TO PLAY AGAIN\nPRESS BACK TO RETURN TO MENU";
             if ((int)((System.currentTimeMillis() % 65536) / 400.0) % 2 == 0) {
-                tapToContinue.setText(smallFont, "[WHITE]TAP TO PLAY AGAIN");
+                tapToContinue.setText(smallFont, "[WHITE]" + playAgainStr);
             } else {
-                tapToContinue.setText(smallFont, "[BLACK]TAP TO PLAY AGAIN");
+                tapToContinue.setText(smallFont, "[BLACK]" + playAgainStr);
             }
             if (isEventHappening("RAINBOW BG")) {
-                tapToContinue.setText(smallFont, "TAP TO PLAY AGAIN");
+                tapToContinue.setText(smallFont, playAgainStr);
                 gameOverLayout.setText(bigFont, "GAME OVER");
             }
 
             bigFont.draw(game.batch, gameOverLayout, textCam.viewportWidth / 2 - gameOverLayout.width / 2, 600);
 
             if (player.getDistance() <= RESTART_DISTANCE)
-                smallFont.draw(game.batch, tapToContinue, textCam.viewportWidth / 2 - tapToContinue.width / 2, 400);
+                smallFont.draw(game.batch, tapToContinue, textCam.viewportWidth / 2 - tapToContinue.width / 2, 500);
         }
         game.batch.end();
 
