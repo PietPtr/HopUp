@@ -24,8 +24,10 @@ public class HopUp extends Game {
 	public SpriteBatch batch;
     public BitmapFont font128;
     public BitmapFont font32;
+
     public int width  = 1280;
     public int height = 720;
+
     public ArrayList<String> textureFiles = new ArrayList<String>();
     public Map<String, Texture> textures = new HashMap<String, Texture>();
 
