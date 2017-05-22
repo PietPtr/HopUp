@@ -38,7 +38,7 @@ public class GameScreen implements Screen {
     final public static float DEGREES_PER_ROCK = 9;
     final public static float CAMERA_OFFSET = -3;
     final public static float HEIGHT_OFFSET = 0.5f;
-    final public static int NEW_EVENT_TIME = HopUp.DEBUG ? 1000 : 9778;
+    final public static int NEW_EVENT_TIME = HopUp.DEBUG ? 1000 : 5000;
     final public static double RESTART_DISTANCE = WORLDHEIGHT - 4;
     final public static float ROTATE_ACC = 1.5f;
     final public static float BASE_ZOOM = 0.005f;
@@ -73,10 +73,9 @@ public class GameScreen implements Screen {
     private GlyphLayout gameOverLayout = new GlyphLayout();
     private GlyphLayout tapToContinue = new GlyphLayout();
 
-    private long gameStartTime = 0;
-    private long gameOverTime = 0;
+    public long gameStartTime = 0;
+    public long gameOverTime = 0;
 
-    private ArrayList<Float> rainbowPhases = new ArrayList<Float>();
     public ArrayList<Color> rainbows = new ArrayList<Color>();
 
     private BitmapFont smallFont;
@@ -92,8 +91,8 @@ public class GameScreen implements Screen {
         addEvent("PULSATING OBSTACLES");    // 2
         addEvent("VIEW ZOOM");              // 3
         addEvent("VIEW ROTATE");            // 4
-        addEvent("RAINBOW ROCKS");          // 5
-        addEvent("RAINBOW BG");             // 6
+        addEvent("RAINBOW BG");             // 5
+        addEvent("RAINBOW ROCKS");          // 6
         addEvent("RAINBOW DOTS");           // 7
         addEvent("RAINBOW OBSTACLES");      // 8
         addEvent("RAINBOW WORLD");          // 9
@@ -202,11 +201,12 @@ public class GameScreen implements Screen {
             if (Utils.randint(0, 100) < 10) {
                 dots.add(new Dot(player.getAngle() - (Utils.randint(0, 320) / 10.0f)));
             }
+
+            for (Dot d : dots) {
+                d.update();
+            }
         }
 
-        for (Dot d : dots) {
-            d.update();
-        }
 
         while (dots.size() > MAX_DOTS) {
             System.out.println("removing dot");
@@ -220,7 +220,7 @@ public class GameScreen implements Screen {
         }
 
         if (isEventHappening("VIEW ZOOM")) {
-            camera.zoom = BASE_ZOOM + (float)Math.sin((System.currentTimeMillis() - gameStartTime) / 1000.0f * zoomSpeed) / 800f;
+            camera.zoom = BASE_ZOOM + (float)Math.sin((System.currentTimeMillis() - gameStartTime - eventTimes.get("VIEW ZOOM")) / 1000.0f * zoomSpeed) / 800f;
             zoomSpeed += Gdx.graphics.getDeltaTime() * ZOOM_ACC;
             //System.out.println(zoomSpeed);
         }

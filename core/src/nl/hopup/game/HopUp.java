@@ -48,7 +48,7 @@ public class HopUp extends Game {
 
 		this.setScreen(new WarningScreen(this));
 
-        textureFiles.add("maze.png");
+        //textureFiles.add("maze.png");
 
         loadTextures();
 	}

@@ -45,7 +45,7 @@ public class WarningScreen implements Screen {
 
 
         if (game.elapsed() > WARNING_SHOW_TIME) {
-            game.setScreen(new GameScreen(game));
+            game.setScreen(new MenuScreen(game));
             game.font128.setColor(Color.BLACK);
         }
 

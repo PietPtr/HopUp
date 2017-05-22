@@ -22,7 +22,7 @@ enum PlayerState {
 public class Player {
     final double MAX_JUMP_BUILDUP = 7.0;
     final double MIN_JUMP_BUILDUP = 3.0;
-    final double ACCELERATION = 0.08;
+    final double ACCELERATION = 0.16;
     final double DEATH_WAIT_TIME = 100;
     final double GRAVITY = 14.81;
     final double BASE_RADIUS = 0.15;

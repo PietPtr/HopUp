@@ -19,9 +19,9 @@ import sun.management.Util;
 public class Obstacle {
     private static final double DISTANCE_CHANGE = 0.01;
     private static final double FIRST_PULSE_SPEED = 3;
-    private static final float FIRST_PULSE_SIZE = 0.1f;
+    private static final float FIRST_PULSE_SIZE = 0.05f;
     private static final float SPEED_ACC = 0.04f;
-    private static final float SIZE_ACC = 0.01f;
+    private static final float SIZE_ACC = 0.005f;
 
     private float angle;
     private double distance;
@@ -55,16 +55,16 @@ public class Obstacle {
     }
 
     public void update() {
-        pulseSpeed += Gdx.graphics.getDeltaTime() * SPEED_ACC;
-
-        if (pulseSize >= 0.5) {
-            pulseSize = 0.5;
-        } else {
-            pulseSize += Gdx.graphics.getDeltaTime() * SIZE_ACC;
-        }
-
         if (gameScreen.isEventHappening("PULSATING OBSTACLES")) {
-            double time = (int)(gameScreen.game.elapsed() % 300003) * pulseSpeed;
+            pulseSpeed += Gdx.graphics.getDeltaTime() * SPEED_ACC;
+
+            if (pulseSize >= 0.5) {
+                pulseSize = 0.5;
+            } else {
+                pulseSize += Gdx.graphics.getDeltaTime() * SIZE_ACC;
+            }
+
+            double time = (int)((System.currentTimeMillis() - gameScreen.gameStartTime) % 300003) * pulseSpeed;
             width = baseWidth + (float)(Math.sin(time / 1000.0) * pulseSize);
             height = baseHeight + (float)(Math.cos(time / 1000.0) * pulseSize);
         }
